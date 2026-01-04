@@ -1,0 +1,125 @@
+# Example SLSM Playbook
+# Location: ~/.sls-memory/playbook.yaml
+#
+# This file contains error patterns with known fixes.
+# When agents encounter these errors, SLSM surfaces the fixes.
+
+patterns:
+  # Database Errors
+  - id: slsm-001
+    fingerprint: connection-refused-postgres
+    pattern: "ECONNREFUSED.*:5432"
+    severity: high
+    category: database
+    title: PostgreSQL connection refused
+    symptoms:
+      - "ECONNREFUSED 127.0.0.1:5432"
+      - "connect ECONNREFUSED ::1:5432"
+      - "Connection refused (0x0000274D/10061)"
+    root_causes:
+      - PostgreSQL service not running
+      - PostgreSQL not configured to accept connections
+      - Firewall blocking port 5432
+    fixes:
+      - step: Check if PostgreSQL is running
+        command: "systemctl status postgresql"
+      - step: Start PostgreSQL if stopped
+        command: "sudo systemctl start postgresql"
+      - step: Check PostgreSQL is listening
+        command: "ss -tlnp | grep 5432"
+    feedback:
+      helpful: 12
+      harmful: 0
+
+  - id: slsm-002
+    fingerprint: redis-connection-refused
+    pattern: "ECONNREFUSED.*:6379"
+    severity: high
+    category: database
+    title: Redis connection refused
+    symptoms:
+      - "ECONNREFUSED 127.0.0.1:6379"
+      - "Redis connection to 127.0.0.1:6379 failed"
+    root_causes:
+      - Redis server not running
+      - Redis protected mode blocking connections
+    fixes:
+      - step: Check if Redis is running
+        command: "systemctl status redis"
+      - step: Start Redis if stopped
+        command: "sudo systemctl start redis"
+    feedback:
+      helpful: 8
+      harmful: 0
+
+  # Network Errors
+  - id: slsm-003
+    fingerprint: dns-resolution-failed
+    pattern: "getaddrinfo ENOTFOUND"
+    severity: medium
+    category: network
+    title: DNS resolution failed
+    symptoms:
+      - "getaddrinfo ENOTFOUND example.com"
+      - "Error: getaddrinfo ENOTFOUND"
+    root_causes:
+      - DNS server unreachable
+      - Hostname does not exist
+      - Network connectivity issues
+    fixes:
+      - step: Check network connectivity
+        command: "ping -c 3 8.8.8.8"
+      - step: Check DNS resolution
+        command: "nslookup example.com"
+      - step: Check /etc/resolv.conf
+        command: "cat /etc/resolv.conf"
+    feedback:
+      helpful: 5
+      harmful: 1
+
+  # Git Errors
+  - id: slsm-004
+    fingerprint: git-push-rejected
+    pattern: "rejected.*non-fast-forward"
+    severity: medium
+    category: git
+    title: Git push rejected (non-fast-forward)
+    symptoms:
+      - "! [rejected] (non-fast-forward)"
+      - "Updates were rejected because the tip of your current branch is behind"
+    root_causes:
+      - Remote has commits not in local branch
+      - Someone else pushed to the branch
+    fixes:
+      - step: Pull remote changes first
+        command: "git pull --rebase origin <branch>"
+      - step: Resolve any conflicts if necessary
+      - step: Push again after rebasing
+    feedback:
+      helpful: 15
+      harmful: 0
+
+  # Filesystem Errors
+  - id: slsm-005
+    fingerprint: permission-denied
+    pattern: "EACCES.*permission denied"
+    severity: medium
+    category: filesystem
+    title: Permission denied
+    symptoms:
+      - "EACCES: permission denied"
+      - "Error: EACCES: permission denied, open"
+    root_causes:
+      - File owned by different user
+      - Insufficient permissions on file/directory
+      - SELinux or AppArmor blocking access
+    fixes:
+      - step: Check file ownership
+        command: "ls -la <path>"
+      - step: Change ownership if needed
+        command: "sudo chown $USER <path>"
+      - step: Check file permissions
+        command: "stat <path>"
+    feedback:
+      helpful: 7
+      harmful: 0

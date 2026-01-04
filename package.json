@@ -1,0 +1,28 @@
+{
+  "name": "slsm",
+  "version": "0.1.0",
+  "description": "SLS Memory - Extract recurring error patterns into a playbook",
+  "author": "SLS Team",
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "slsm": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "bun build src/index.ts --outdir dist --target node",
+    "dev": "bun run src/index.ts",
+    "start": "bun run dist/index.js",
+    "test": "bun test",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "commander": "^12.0.0",
+    "yaml": "^2.3.0",
+    "chalk": "^5.3.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0",
+    "bun-types": "latest"
+  }
+}

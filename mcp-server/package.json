@@ -1,0 +1,19 @@
+{
+  "name": "sls-memory-mcp",
+  "version": "1.0.0",
+  "type": "module",
+  "bin": {
+    "slsm-mcp": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "bun build src/index.ts --outdir dist --target bun",
+    "start": "bun run dist/index.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.25.1",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "bun-types": "latest"
+  }
+}
